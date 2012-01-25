@@ -1,0 +1,284 @@
+body {
+	font-family: Helvetica, Verdana, Arial, sans;
+	margin: 0px;
+	padding: 0px;
+	font-size: 11px;
+}
+a, ul.menu li {
+	cursor: pointer;
+}
+#map {
+	width: 100%;
+	height: 100%;
+}
+.chart {
+	width: 380px;
+	height: 200px;
+	margin: 2px;
+	float: left;
+}
+.box {
+	padding: 5px;
+	margin: 5px;
+}
+.shaded {
+	background-color: #343434;
+	opacity: 0.9;
+	z-index: 1000;
+	color: #fff;			
+}
+.shaded a {
+	color: #fff;
+	text-decoration: none;
+}
+.rightyBox {
+	-moz-border-radius-topright: 15px;
+	-webkit-border-top-right-radius: 15px;
+	-moz-border-radius-bottomright: 15px;
+	-webkit-border-bottom-right-radius: 15px;
+	border: 1px solid #587600;
+}
+.leftyBox {
+	-moz-border-radius-topleft: 15px;
+	-webkit-border-top-left-radius: 15px;
+	-moz-border-radius-bottomleft: 15px;
+	-webkit-border-bottom-left-radius: 15px;
+	border: 1px solid #587600;
+}
+.downyBox {
+	-moz-border-radius-topleft: 15px;
+	-webkit-border-top-left-radius: 15px;
+	-moz-border-radius-topright: 15px;
+	-webkit-border-top-right-radius: 15px;
+	border: 1px solid #587600;
+}
+
+.modal {
+	-moz-border-radius-topright: 15px;
+	-webkit-border-top-right-radius: 15px;
+	-moz-border-radius-bottomright: 15px;
+	-webkit-border-bottom-right-radius: 15px;
+	-moz-border-radius-topleft: 15px;
+	-webkit-border-top-left-radius: 15px;
+	-moz-border-radius-bottomleft: 15px;
+	-webkit-border-bottom-left-radius: 15px;
+	border: 1px solid #587600;
+	width: 600px;
+	height: 300px;
+	padding: 10px;
+	position: absolute;
+	top: 100px;
+	left: 100px;
+}
+#options {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	padding: 10px 0px;
+}
+
+#polygons {
+	position: absolute;
+	top: 70px;
+	right: 0px;
+	width: 210px;
+	padding: 10px;
+}
+
+.help {
+	position: absolute;
+	bottom: 0px;
+	left: 10px;
+	padding: 10px;
+}
+h1 {
+	padding: 10px;
+	margin: 0px;
+}
+h4, h5 {
+	padding: 3px 10px;
+	margin: 0px;
+}
+ul {
+	padding: 0px;
+	margin: 0px;
+}
+li {
+	list-style: none;			
+}
+ul.menu li {
+	float: left;
+	padding: 0px 10px;
+}
+.byPolygonBox {
+	position: absolute;
+	top: 75px;
+	left: 0px;
+	width: 800px;
+	height: 400px;
+	z-index: 1010;
+	opacity: 1;
+}
+#superOuterByVegetation {
+	position: absolute;
+	top: 35px;
+	left: 0px;
+	width: 840px;
+	display: none;			
+}
+#outerByVegetation {
+	padding: 10px;
+	width: 800px;
+	height: 320px;
+	overflow-x: scroll;
+	overflow-y: hidden;
+}
+#byVegetation {
+	width: 6000px;
+}
+
+#infobox {
+	position: absolute;
+	right: 0px;
+	bottom: 40px;
+	z-index: 1000;
+}
+
+#gisLegend {
+	padding: 10px;
+	width: 210px;
+	margin-bottom: 10px;
+	display: none;
+}
+
+#layerSwitcher {
+	padding: 10px;
+	width: 210px;
+}
+
+.olControlMousePosition {
+	color: white;
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+}
+.olControlScale {
+	color: white;
+	position: absolute;
+	bottom: 10px;
+	right: 150px;
+}
+.olControlPanZoom, #panzoom {
+	margin-top: 65px;
+}
+#zoomLevel {
+	color: white;
+	position: absolute;
+	bottom: 10px;
+	right: 300px;			
+	z-index: 1000;
+}
+.polyBox {
+	border-top: 1px solid #9C0;
+	border-bottom: 1px solid #9C0;
+	height: 300px;
+	overflow-y: auto;
+}
+.currentTab {
+	font-weight: bold;
+	background-color: #666;
+	border-left: 1px solid #9C0;
+	border-right: 1px solid #9C0;
+}
+
+ul.polygonMenu {
+	border-top: 1px solid #9C0;
+}
+ul.polygonMenu li {
+	padding: 5px 10px;
+}
+
+.legend, .datatable {
+	color: #fff;
+	font-size: 10px;
+	margin: 0px auto;
+}
+
+.altRow {
+	background-color: #444;
+}
+
+.legendary {
+	width: 12px;
+	height: 10px;
+	margin-right: 2px;
+	margin-left: 1px;
+	float: left;
+}
+
+.goright {
+	text-align: right;
+}
+
+#layerInformation div {
+    background-color: #fff;
+    padding: 8px;
+    position: absolute;
+    left: 40%;
+    top: 40%;
+    z-index: 2000;
+    width: 300px;
+    border: 1px solid #ccc;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+}
+
+#layerInformation img {
+    vertical-align: middle;
+    padding-right: 3px;
+}
+
+.mainOverlay {
+    background-color: #fff;
+    position: absolute; 
+    top: 40%; 
+    left: 40%; 
+    text-align: center;
+    width: 300px;
+    z-index: 2000;
+    padding: 10px;
+    border: 1px solid #ccc;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+}
+
+.hoverHelp {
+    background-color: #fff;
+    z-index: 2000;
+    padding: 10px;
+    width: 200px;
+    border: 1px solid #ccc;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+
+}
+
+img.close {
+    float: right;
+    vertical-align: middle;
+    clear: left;
+}
+
+h3.bordered {
+    padding: 5px;
+    margin: 0px;
+    border: 1px solid #ccc;
+    background-color: #eee;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+}
+
+img.action {
+    vertical-align: middle;
+}

@@ -1,0 +1,214 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <style type="text/css">
+        #map {
+            width: 100%;
+            height: 99%;
+            border: 1px solid black;
+        }
+	body {
+	  padding:0px; 
+	  margin:2px
+	}
+	#labs {
+	 position:absolute;
+	 bottom:15px;
+	 left:7px;
+	 font-size:smaller;
+	 z-index: 5000;
+        }	 
+    </style>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript">$.noConflict();</script>
+    <script src="http://openlayers.org/api/OpenLayers.js"></script>
+    <script src="/CustomLayerSwitcher.js"></script>
+    <script src="/interface.js"></script>
+    <script type="text/javascript">
+        <!--
+        var map, layer;
+	var APIKEY = 'test';
+
+		function featureCallback(feature, polygonId) {
+			var params = {};
+			params.coords = getCoordinates(feature);
+
+			// Area in hectares.
+			var area = round(feature.geometry.getGeodesicArea() / 10000);
+
+			// Area in square kilometers
+			var squarekms = area / 100;
+			var grid = '300';
+			if (squarekms > 100000000) {
+				grid = '100km';
+			} else if (squarekms > 1000000) {
+				grid = '10km';
+			} else if (squarekms > 10000) {
+				grid = '1km';
+			} else if (squarekms > 100) {
+				grid = '300';
+			}
+			
+			jQuery('.polyArea' + polygonId).text(area);	
+			/*
+			for (var quantityLayerIndex = 0; quantityLayerIndex < valueLayers.length; quantityLayerIndex++) {
+				quantityLayer = valueLayers[quantityLayerIndex];
+				
+				params.layer = quantityLayer.layername;
+				params.query = 'Average';
+				query(params, processTotals, 'By ' + quantityLayer.layername, 'averageCarbonByType', polygonId, area);
+				
+				for (var categoryLayerIndex = 0; categoryLayerIndex < categoryLayers.length; categoryLayerIndex++) {
+					categoryLayer = categoryLayers[categoryLayerIndex];
+
+					params.category = categoryLayer.layername;
+					params.query = 'Average';
+					var title = quantityLayer.type + ' By ' + categoryLayer.layername;
+					
+					query(params, processCategorization, title, sluggify(title), polygonId, jsonToHighchart);
+				}
+			}
+			*/
+			params.layer = 'Carbon Brazil 1km';
+			params.query = 'Average';
+			query(params, processTotals, 'Carbon Density By Vegetation Type', 'averageCarbonByType', polygonId, area);
+
+			params.category = 'Vegetation Brazil 1km';
+			params.groupby = 'vegetation_1km.indexvalue';
+			params.query = 'Average';
+			query(params, processVegetation, 'Carbon Density By Vegetation Type', 'averageCarbonByType', polygonId, jsonToHighchart);
+
+			params.category = 'Risk Brazil 1km';
+			params.groupby = 'risk_1km.indexvalue';
+			params.query = 'Average';
+			query(params, processRisk, 'Carbon Density By Risk', 'averageCarbonByRisk', polygonId, jsonToHighchart);
+		}
+
+
+
+        function init(){
+            map = new OpenLayers.Map( $('map'), {
+		'maxResolution': 360/512,
+		'controls': [
+			new OpenLayers.Control.Navigation(),
+			new OpenLayers.Control.PanZoomBar(),
+                        new OpenLayers.Control.Scale(),
+                        new OpenLayers.Control.MousePosition()
+		]
+	    });
+            basic_layer = new OpenLayers.Layer.WMS( "Outlines", 
+                    "tilecache.cgi?", 
+                    {layers: 'basic', format: 'image/png' },
+                    {layerId: 'outlines'} );
+            bm_layer = new OpenLayers.Layer.WMS( "Blue Marble", 
+                    "tilecache.cgi?", 
+                    {layers: 'bluemarble', format: 'image/png' },
+                    {layerId: 'bluemarble'} );
+            //osm_layer = new OpenLayers.Layer.TMS( "OpenStreetMap", 
+            //        "/tilecache.cgi/", {layername: 'osm', type: 'png' } );
+            osm_layer = new OpenLayers.Layer.OSM("OSM", "/tiles/${z}/${x}/${y}.png", 
+                                                 {numZoomLevels: 19});
+            //osm_layer = new OpenLayers.Layer.WMS( "Outlines", 
+            //        "tilecache.cgi?", {layers: 'basic', format: 'image/png' } );
+            //map.addLayer(osm_layer);
+
+            map.addLayers([basic_layer, bm_layer, osm_layer]);
+            map.addControl(new OpenLayers.Control.Permalink());
+
+            var vectorLayer = new OpenLayers.Layer.Vector("Polygons", {'displayInLayerSwitcher': false});
+            map.addLayer(vectorLayer);
+
+            var layerSwitcher = new OpenLayers.Control.CustomLayerSwitcher({
+                'div': OpenLayers.Util.getElement('layerSwitcher'),
+                'roundedCorner': false
+            });
+            map.addControl(layerSwitcher);
+            OpenLayers.Util.getElement('zoomLevel').innerHTML = 'Zoom Level ' + map.zoom;
+
+            map.events.register("zoomend", null, function () {
+                
+                /*if (map.zoom < max_zoom) {
+                    map.zoomTo(max_zoom);
+                    return;
+                }*/
+                OpenLayers.Util.getElement('zoomLevel').innerHTML = 'Zoom Level ' + map.zoom;
+            });
+
+            polygonControl = new OpenLayers.Control.DrawFeature(vectorLayer, OpenLayers.Handler.Polygon);
+            polygonControl.featureAdded = function (feature) {
+                polygonCount = polygonCount + 1;
+                features[polygonCount] = {'feature': feature};
+                jQuery('#byPolygon').append(jQuery('#byPolygonTemplate').html().replace(/_id/g, polygonCount));
+		featureCallback(feature, polygonCount);
+                jQuery('#polygonList').append('<li id="polygonList' + polygonCount + '"><a onclick="javascript:openLayerInformation(\'' + polygonCount + '\')" href="#">View Details (Polygon ' + polygonCount + ')</a> <a href="#" onclick="deletePolygon(' + polygonCount + ')"><img src="/s/img/trash.png" class="icon action"/></a></li>');
+                openLayerInformation(polygonCount);
+
+                polygonControl.deactivate();
+                endPolygon();
+            };	
+            map.addControl(polygonControl);
+
+
+            if (!map.getCenter()) map.zoomToMaxExtent();
+        }
+        // -->
+    </script>
+  </head>
+  <body onload="init()">
+    <div id="polygons" class="shaded leftyBox">
+        <ul id="polygonList">
+            <li><a onclick="startPolygon()" href="#">New Polygon</a></li>
+        </ul>
+    </div>
+
+    <div id="map">
+    <div id="labs">Our Ecosystem, by <a href="http://ecometrica.co.uk">Ecometrica</a>. 
+	Powered by <a href="http://labs.metacarta.com/">MetaCarta Labs</a>.</div>
+    </div>
+    <div id="byPolygon" class=""></div>
+		<div id="byPolygonTemplate">
+			<div id="outerPolygonCharts_id" style="display: none" class="shaded rightyBox byPolygonBox">
+				<h1>Polygon Details</h1>
+				<ul class="menu polygonMenu">
+					<li id="carbonTab_id" onclick="jQuery('.polygonTab').removeClass('currentTab');jQuery(this).addClass('currentTab');jQuery('.polyBox').hide();jQuery('#polygonCarbon_id').show()" class="polygonTab">Carbon</li>
+					<li onclick="jQuery('.polygonTab').removeClass('currentTab');jQuery(this).addClass('currentTab');jQuery('.polyBox').hide();jQuery('#polygonVegetation_id').show()" class="polygonTab">Vegetation</li>
+
+					<li onclick="jQuery('.polygonTab').removeClass('currentTab');jQuery(this).addClass('currentTab');jQuery('.polyBox').hide();jQuery('#polygonRisk_id').show()" class="polygonTab">Risk</li>
+				</ul><br clear="both" />
+				<div id="polygonCarbon_id" class="polyBox" style="display:none">
+					<div class="box">Land Area: <span id="carbonArea_id" class="polyArea_id"></span> hectares</div>
+					<div class="box">Total Carbon: <span id="totalCarbon_id"></span> tonnes of Carbon (t C)</div>
+
+					<div class="box">Carbon Density: <span id="averageCarbon_id"></span> tonnes of Carbon per hectare (t C/ha)</div>
+				</div>
+				<div id="polygonVegetation_id" class="polyBox" style="display:none">
+					<div class="box">Land Area: <span id="vegetationArea_id" class="polyArea_id"></span> hectares</div>
+					<div style="float: left">
+						<div id="totalCarbonByType_id" class="chart"></div>
+
+						<div id="areaByType_id" class="chart"></div>
+					</div>
+					<table id="vegetationTable_id" class="datatable" cellspacing="0" cellpadding="4"></table>
+				</div>
+				<div id="polygonRisk_id" class="polyBox" style="display:none">
+					<div class="box">Land Area: <span id="riskArea_id" class="polyArea_id"></span> hectares</div>
+					<div style="float: left">
+
+						<div id="totalCarbonByRisk_id" class="chart"></div>
+						<div id="areaByRisk_id" class="chart"></div>
+					</div>
+					<table id="riskTable_id" class="datatable" cellspacing="0" cellpadding="4"></table>
+				</div>				
+				<div id="status_id" style="float: left; padding: 7px"></div>
+				<div id="closePolygon_id" style="float: right; padding: 7px; cursor: pointer;"><a onclick="jQuery('#outerPolygonCharts_id').hide()">x hide</a></div>
+			</div>			
+    </div>
+
+    <div id="infoBox">
+        <div id="gislegend" class="shaded leftyBox">&nbsp;</div>
+        <div id="layerSwitcher" class="shaded leftyBox"></div>
+    </div>
+    <div id="zoomLevel"></div>
+    <link href="/style.css" rel="stylesheet" />
+  </body>
+</html>
